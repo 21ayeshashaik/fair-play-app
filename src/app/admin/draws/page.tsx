@@ -107,7 +107,7 @@ export default function AdminDrawsPage() {
   }
 
   return (
-    <div style={{ maxWidth: "1100px" }}>
+    <div style={{ width: "100%" }}>
       <div className="page-header">
         <div>
           <h1 className="page-title">Draw Engine</h1>
@@ -225,7 +225,7 @@ export default function AdminDrawsPage() {
               </div>
 
               {/* Pool summary */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "1.25rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.75rem", marginBottom: "1.25rem" }}>
                 <div style={{ padding: "0.85rem 1rem", background: "var(--bg-surface)", borderRadius: "var(--radius-md)", border: "1px solid var(--border)" }}>
                   <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600, marginBottom: "0.3rem" }}>Total Pool</p>
                   <p style={{ fontWeight: 800, fontSize: "1.25rem" }}>${simResult.pool.toLocaleString()}</p>

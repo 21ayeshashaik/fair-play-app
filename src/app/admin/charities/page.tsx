@@ -105,7 +105,7 @@ export default function AdminCharitiesPage() {
   const filtered = charities.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div style={{ maxWidth: "1100px" }}>
+    <div style={{ width: "100%" }}>
       <div className="page-header">
         <div>
           <h1 className="page-title">Charity Management</h1>
@@ -184,7 +184,7 @@ export default function AdminCharitiesPage() {
               <label className="form-label">Description</label>
               <textarea className="form-textarea form-input" rows={3} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Brief description of the charity's mission." style={{ resize: "vertical" }} />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
               <div className="form-group">
                 <label className="form-label">Category</label>
                 <select className="form-select form-input" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>

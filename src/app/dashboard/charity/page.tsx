@@ -81,7 +81,7 @@ export default function CharityPage() {
   const selected = charities.find(c => c.id === selectedId);
 
   return (
-    <div style={{ maxWidth: "1000px" }}>
+    <div style={{ width: "100%" }}>
       <div className="page-header">
         <div>
           <h1 className="page-title">Charity & Impact</h1>

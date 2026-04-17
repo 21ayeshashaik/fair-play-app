@@ -91,9 +91,12 @@ img { max-width: 100%; display: block; }
    ============================ */
 .container {
   width: 100%;
-  max-width: 1240px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 4rem; /* Increased padding for fluid w-full feel */
+}
+
+@media (max-width: 768px) {
+  .container { padding: 0 1.5rem; }
 }
 
 /* ============================
@@ -332,12 +335,35 @@ img { max-width: 100%; display: block; }
   overflow-x: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+/* Optional horizontal scroll indicator hint */
+.table-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 15px;
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.02));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  min-width: 400px; /* Force scroll instead of squish */
+}
+
+@media (max-width: 768px) {
+  .hide-mobile-md { display: none !important; }
+}
+
+@media (max-width: 480px) {
+  .hide-mobile-sm { display: none !important; }
 }
 
 thead tr {
@@ -374,6 +400,8 @@ tbody td {
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: calc(100vh - 64px);
+  width: 100%;
+  background: linear-gradient(to right, var(--bg-surface) 240px, var(--bg-base) 240px);
 }
 
 .sidebar {
@@ -387,6 +415,7 @@ tbody td {
   top: 64px;
   height: calc(100vh - 64px);
   overflow-y: auto;
+  z-index: 10;
 }
 
 .sidebar-section-label {
@@ -431,8 +460,6 @@ tbody td {
   padding: 1.5rem 2rem;
   background: var(--bg-base);
   overflow-y: auto;
-  max-width: 1280px;
-  margin: 0 auto;
   width: 100%;
 }
 

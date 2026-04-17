@@ -136,7 +136,7 @@ export default function ScoresPage() {
     : "—";
 
   return (
-    <div style={{ maxWidth: "900px" }}>
+    <div style={{ width: "100%" }}>
       {/* Page header */}
       <div className="page-header">
         <div>

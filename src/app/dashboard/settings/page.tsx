@@ -46,7 +46,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div style={{ maxWidth: "860px" }}>
+    <div style={{ width: "100%" }}>
       <div className="page-header">
         <div>
           <h1 className="page-title">Account Settings</h1>

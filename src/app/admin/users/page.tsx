@@ -56,7 +56,7 @@ export default function AdminUsersPage() {
   const counts = { all: users.length, active: users.filter(u => u.status === "active").length, lapsed: users.filter(u => u.status === "lapsed").length, cancelled: users.filter(u => u.status === "cancelled").length };
 
   return (
-    <div style={{ maxWidth: "1100px" }}>
+    <div style={{ width: "100%" }}>
       <div className="page-header">
         <div>
           <h1 className="page-title">User Management</h1>
@@ -101,11 +101,11 @@ export default function AdminUsersPage() {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Email</th>
-                  <th>Plan</th>
+                  <th className="hide-mobile-md">Email</th>
+                  <th className="hide-mobile-sm">Plan</th>
                   <th>Scores</th>
                   <th>Status</th>
-                  <th>Joined</th>
+                  <th className="hide-mobile-md">Joined</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -115,14 +115,14 @@ export default function AdminUsersPage() {
                 ) : filtered.map(u => (
                   <tr key={u.id}>
                     <td style={{ fontWeight: 600 }}>{u.first_name} {u.last_name}</td>
-                    <td style={{ color: "var(--text-secondary)" }}>{u.email}</td>
-                    <td><span className={`badge ${u.plan === "yearly" ? "badge-blue" : "badge-gray"}`}>{u.plan}</span></td>
+                    <td className="hide-mobile-md" style={{ color: "var(--text-secondary)" }}>{u.email}</td>
+                    <td className="hide-mobile-sm"><span className={`badge ${u.plan === "yearly" ? "badge-blue" : "badge-gray"}`}>{u.plan}</span></td>
                     <td>
                       <span style={{ fontWeight: 700, color: u.scores_count === 5 ? "var(--accent)" : "var(--text-primary)" }}>{u.scores_count}</span>
                       <span style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}> / 5</span>
                     </td>
                     <td><StatusBadge status={u.status} /></td>
-                    <td style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>{new Date(u.joined_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</td>
+                    <td className="hide-mobile-md" style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>{new Date(u.joined_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</td>
                     <td>
                       <div style={{ display: "flex", gap: "0.35rem" }}>
                         <button className="btn btn-secondary btn-sm" title="View"><Eye size={14} /></button>

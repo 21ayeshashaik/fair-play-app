@@ -47,7 +47,7 @@ const quickActions = [
 
 export default function AdminOverview() {
   return (
-    <div style={{ maxWidth: "1100px" }}>
+    <div style={{ width: "100%" }}>
       <div className="page-header">
         <div>
           <h1 className="page-title">Admin Overview</h1>
@@ -76,7 +76,7 @@ export default function AdminOverview() {
       </div>
 
       {/* Bottom grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
         {/* Pending verifications */}
         <div className="card" style={{ padding: "1.5rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>

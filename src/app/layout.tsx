@@ -1,23 +1,29 @@
-import type { Metadata } from "next";
+"use client";
+
+import { usePathname } from "next/navigation";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
-export const metadata: Metadata = {
-  title: "FairPlay — Golf. Charity. Wins.",
-  description:
-    "A subscription platform combining golf performance tracking, charity fundraising, and a monthly prize draw engine. Subscribe, enter scores, and win big while doing good.",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const pathname = usePathname();
+
+  // Hide global Footer on dashboard and admin internal pages to avoid clutter
+  // But keep the NavBar everywhere as requested for mobile navigation
+  const isDashboardOrAdmin = pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin");
+
   return (
     <html lang="en">
-      <body>
+      <head>
+        <title>FairPlay — Golf. Charity. Wins.</title>
+        <meta name="description" content="A subscription platform combining golf performance tracking, charity fundraising, and a monthly prize draw engine." />
+      </head>
+      <body className={isDashboardOrAdmin ? "has-mobile-bottom-nav" : ""}>
         <NavBar />
         <main>{children}</main>
-        <Footer />
+        {!isDashboardOrAdmin && <Footer />}
       </body>
     </html>
   );

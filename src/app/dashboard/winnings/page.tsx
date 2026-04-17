@@ -96,7 +96,7 @@ export default function WinningsPage() {
   const pendingPayout = wins.filter(w => w.payment_status !== "paid").reduce((s, w) => s + w.prize_amount, 0);
 
   return (
-    <div style={{ maxWidth: "1000px" }}>
+    <div style={{ width: "100%" }}>
       <div className="page-header">
         <div>
           <h1 className="page-title">Winnings & Draws</h1>

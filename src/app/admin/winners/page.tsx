@@ -87,7 +87,7 @@ export default function AdminWinnersPage() {
   const totalPaid    = winners.filter(w => w.payment_status === "paid").reduce((s, w) => s + w.prize_amount, 0);
 
   return (
-    <div style={{ maxWidth: "1100px" }}>
+    <div style={{ width: "100%" }}>
       <div className="page-header">
         <div>
           <h1 className="page-title">Winner Verifications</h1>
@@ -151,12 +151,12 @@ export default function AdminWinnersPage() {
               <thead>
                 <tr>
                   <th>Winner</th>
-                  <th>Draw</th>
-                  <th>Match</th>
+                  <th className="hide-mobile-md">Draw</th>
+                  <th className="hide-mobile-sm">Match</th>
                   <th>Prize</th>
-                  <th>Submitted</th>
+                  <th className="hide-mobile-md">Submitted</th>
                   <th>Verification</th>
-                  <th>Payment</th>
+                  <th className="hide-mobile-sm">Payment</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -167,12 +167,12 @@ export default function AdminWinnersPage() {
                   <tr key={w.id}>
                     <td>
                       <p style={{ fontWeight: 600, fontSize: "0.875rem" }}>{w.user_name}</p>
-                      <p style={{ fontSize: "0.775rem", color: "var(--text-muted)" }}>{w.user_email}</p>
+                      <p className="hide-mobile-md" style={{ fontSize: "0.775rem", color: "var(--text-muted)" }}>{w.user_email}</p>
                     </td>
-                    <td style={{ fontSize: "0.875rem" }}>{w.draw_month}</td>
-                    <td><span className={`badge ${matchColor[w.match_type]}`}><Trophy size={10} /> {matchLabel[w.match_type]}</span></td>
+                    <td className="hide-mobile-md" style={{ fontSize: "0.875rem" }}>{w.draw_month}</td>
+                    <td className="hide-mobile-sm"><span className={`badge ${matchColor[w.match_type]}`}><Trophy size={10} /> {matchLabel[w.match_type]}</span></td>
                     <td style={{ fontWeight: 700, color: "var(--accent)" }}>${w.prize_amount.toLocaleString()}</td>
-                    <td style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                    <td className="hide-mobile-md" style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
                       {w.submitted_at ? new Date(w.submitted_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}
                     </td>
                     <td>
@@ -181,7 +181,7 @@ export default function AdminWinnersPage() {
                       {w.verification_status === "approved"   && <span className="badge badge-green"><CheckCircle size={10} /> Approved</span>}
                       {w.verification_status === "rejected"   && <span className="badge badge-red"><XCircle size={10} /> Rejected</span>}
                     </td>
-                    <td>
+                    <td className="hide-mobile-sm">
                       {w.payment_status === "paid"
                         ? <span className="badge badge-green"><CheckCircle size={10} /> Paid</span>
                         : <span className="badge badge-yellow"><Clock size={10} /> Pending</span>}

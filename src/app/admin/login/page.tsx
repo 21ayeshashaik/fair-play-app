@@ -42,13 +42,7 @@ export default function AdminLoginPage() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-base)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <div style={{ width: "100%", maxWidth: "420px" }}>
-        {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontFamily: "var(--font-heading)", fontSize: "1.5rem", fontWeight: 800 }}>
-            <Target size={26} color="var(--brand)" strokeWidth={2.5} />
-            Fair<span style={{ color: "var(--brand)" }}>Play</span>
-          </Link>
-        </div>
+
 
         {/* Card */}
         <div className="card" style={{ padding: "2.5rem", boxShadow: "var(--shadow-lg)" }}>
