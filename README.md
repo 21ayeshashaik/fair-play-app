@@ -1,8 +1,8 @@
-# FairPlay — Golf | Charity | Community
+# FairPlay Golf | Charity | Community
 
 FairPlay is a professional subscription-driven web platform that combines golf performance tracking, charity fundraising, and a monthly reward engine. Built with a "Mobile-First" philosophy and an enterprise-grade design system.
 
-## 🚀 Core Features
+## Core Features
 
 ### For Users
 - **Dashboard Overview**: Instant snapshot of subscription status, rolling handicap average, and total winnings.
@@ -20,7 +20,7 @@ FairPlay is a professional subscription-driven web platform that combines golf p
 
 ---
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Framework**: Next.js (App Router)
 - **Database / Auth**: Supabase (PostgreSQL)
@@ -31,12 +31,12 @@ FairPlay is a professional subscription-driven web platform that combines golf p
 
 ---
 
-## 📱 Mobile-First Design
+##  Mobile-First Design
 The platform features a premium **Mobile Bottom Navigation Bar** that automatically takes over on smaller screens, ensuring the application feels like a native app. Content grids and tables have been optimized with fluid layouts for a seamless experience across all devices.
 
 ---
 
-## ⚙️ Setup & Installation
+## Setup & Installation
 
 ### 1. Database Setup
 The application uses Supabase. Run the provided SQL schema to initialize the database:
