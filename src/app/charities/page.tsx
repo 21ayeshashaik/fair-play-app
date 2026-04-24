@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Heart, Search, Users, ArrowRight, Globe } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/server";
+import CharityHero from "@/components/CharityHero";
 
 interface Charity {
   id: string;
@@ -9,17 +10,18 @@ interface Charity {
   category: string;
   supporters?: number;
   website?: string;
+  image_url?: string;
 }
 
 const MOCK_CHARITIES: Charity[] = [
-  { id: "c1", name: "Global Clean Water Initiative", description: "Providing clean, safe drinking water to communities across Sub-Saharan Africa and South Asia.", category: "Environment", supporters: 1240, website: "#" },
-  { id: "c2", name: "Children's Education Fund",      description: "Funding access to quality education for underprivileged children in over 30 countries.", category: "Education", supporters: 892 },
-  { id: "c3", name: "Mental Health Alliance",         description: "Raising awareness, reducing stigma, and funding research for mental health conditions worldwide.", category: "Health", supporters: 764 },
-  { id: "c4", name: "Ocean Plastic Recovery",         description: "Coordinating global efforts to remove plastic waste from the world's oceans and coastlines.", category: "Environment", supporters: 631 },
-  { id: "c5", name: "Hunger Relief Network",          description: "Delivering nutritious meals and sustainable food programs to families in acute crisis.", category: "Humanitarian", supporters: 1105 },
-  { id: "c6", name: "Reforestation Trust",            description: "Planting native trees and restoring natural habitats across heavily deforested regions.", category: "Environment", supporters: 488 },
-  { id: "c7", name: "Women in STEM Foundation",       description: "Scholarships, mentorship, and advocacy for women and girls entering STEM disciplines.", category: "Education", supporters: 377 },
-  { id: "c8", name: "Veterans Support Alliance",      description: "Providing mental health, housing, and career support to military veterans.", category: "Health", supporters: 541 },
+  { id: "c1", name: "Global Clean Water Initiative", description: "Providing clean, safe drinking water to communities across Sub-Saharan Africa and South Asia.", category: "Environment", supporters: 1240, website: "#", image_url: "/charity_environment_1776949965136.png" },
+  { id: "c2", name: "Children's Education Fund",      description: "Funding access to quality education for underprivileged children in over 30 countries.", category: "Education", supporters: 892, image_url: "/charity_education_1776949991246.png" },
+  { id: "c3", name: "Mental Health Alliance",         description: "Raising awareness, reducing stigma, and funding research for mental health conditions worldwide.", category: "Health", supporters: 764, image_url: "/charity_health_1776950019911.png" },
+  { id: "c4", name: "Ocean Plastic Recovery",         description: "Coordinating global efforts to remove plastic waste from the world's oceans and coastlines.", category: "Environment", supporters: 631, image_url: "/charity_environment_1776949965136.png" },
+  { id: "c5", name: "Hunger Relief Network",          description: "Delivering nutritious meals and sustainable food programs to families in acute crisis.", category: "Humanitarian", supporters: 1105, image_url: "/charity_humanitarian_1776950041219.png" },
+  { id: "c6", name: "Reforestation Trust",            description: "Planting native trees and restoring natural habitats across heavily deforested regions.", category: "Environment", supporters: 488, image_url: "/charity_environment_1776949965136.png" },
+  { id: "c7", name: "Women in STEM Foundation",       description: "Scholarships, mentorship, and advocacy for women and girls entering STEM disciplines.", category: "Education", supporters: 377, image_url: "/charity_education_1776949991246.png" },
+  { id: "c8", name: "Veterans Support Alliance",      description: "Providing mental health, housing, and career support to military veterans.", category: "Health", supporters: 541, image_url: "/charity_health_1776950019911.png" },
 ];
 
 const categoryColors: Record<string, string> = {
@@ -29,20 +31,30 @@ const categoryColors: Record<string, string> = {
   Humanitarian: "badge-gray",
 };
 
-async function getCharities(): Promise<Charity[]> {
+const defaultCategoryImages: Record<string, string> = {
+  Environment:  "/charity_environment_1776949965136.png",
+  Education:    "/charity_education_1776949991246.png",
+  Health:       "/charity_health_1776950019911.png",
+  Humanitarian: "/charity_humanitarian_1776950041219.png",
+};
+
+async function getCharities() {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from("charities")
       .select("*")
       .order("name");
 
-    return !error && data && data.length ? (data as Charity[]) : MOCK_CHARITIES;
+    return !error && data && data.length ? data : MOCK_CHARITIES;
   } catch {
     return MOCK_CHARITIES;
   }
 }
 
 export default async function CharitiesPage() {
+  const supabase = await createClient();
+  const { data: { session } } = await supabase.auth.getSession();
   const charities = await getCharities();
 
   const categories = Array.from(new Set(charities.map(c => c.category)));
@@ -55,30 +67,25 @@ export default async function CharitiesPage() {
 
   return (
     <>
-      {/* Hero */}
-      <section style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--border)", padding: "4rem 0" }}>
-        <div className="container" style={{ textAlign: "center" }}>
-          <span className="section-label">Charitable Causes</span>
-          <h1 style={{ fontSize: "clamp(2rem, 4vw, 3.25rem)", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "1rem" }}>
-            The causes you power
-          </h1>
-          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", maxWidth: "560px", margin: "0 auto 2.5rem", lineHeight: 1.8 }}>
-            Every FairPlay subscription allocates a portion to a charity you choose. Browse our verified directory and make your selection.
-          </p>
-          <div style={{ display: "flex", justifyContent: "center", gap: "3rem", flexWrap: "wrap" }}>
+      <CharityHero />
+
+      {/* Stats Summary Inline */}
+      <div style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--border)", padding: "2rem 0" }}>
+        <div className="container">
+          <div style={{ display: "flex", justifyContent: "center", gap: "4vw", flexWrap: "wrap", opacity: 0.8 }}>
             {[
-              { value: charities.length.toString(), label: "Active Charities" },
-              { value: totalSupporters.toLocaleString() + "+", label: "FairPlay Supporters" },
-              { value: "$125k+", label: "Total Raised" },
+              { value: charities.length.toString(), label: "Verified Charities" },
+              { value: totalSupporters.toLocaleString() + "+", label: "Players Joined" },
+              { value: "$125k+", label: "Impact Created" },
             ].map(s => (
-              <div key={s.label} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: "2rem", fontWeight: 800, color: "var(--brand)", lineHeight: 1 }}>{s.value}</div>
-                <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "0.3rem", fontWeight: 500 }}>{s.label}</div>
+              <div key={s.label} style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
+                <span style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--brand)" }}>{s.value}</span>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.label}</span>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Charity grid */}
       <section className="section">
@@ -92,29 +99,38 @@ export default async function CharitiesPage() {
                 <p style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{items.length} charities</p>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.25rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.5rem" }}>
                 {items.map(c => (
-                  <div key={c.id} className="card card-hover">
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
-                      <div className="icon-box icon-box-green"><Heart size={18} /></div>
+                  <div key={c.id} className="card card-hover" style={{ display: "flex", flexDirection: "column", border: "1px solid var(--border)", borderRadius: "1.25rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.25rem" }}>
+                      <div className={`icon-box icon-box-${cat === 'Environment' ? 'green' : cat === 'Education' ? 'blue' : 'yellow'}`} style={{ width: "48px", height: "48px" }}>
+                        <Heart size={20} />
+                      </div>
                       {c.website && (
-                        <Link href={c.website} style={{ color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "0.2rem", fontSize: "0.78rem" }}>
-                          <Globe size={13} /> Website
+                        <Link href={c.website} className="icon-box icon-box-gray" style={{ width: "32px", height: "32px", opacity: 0.6 }}>
+                          <Globe size={14} />
                         </Link>
                       )}
                     </div>
-                    <h3 style={{ fontSize: "0.975rem", fontWeight: 700, marginBottom: "0.5rem" }}>{c.name}</h3>
-                    <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", lineHeight: 1.65, marginBottom: "1rem" }}>{c.description}</p>
-                    {c.supporters && (
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                          <Users size={12} /> {c.supporters.toLocaleString()} supporters
-                        </p>
-                        <Link href="/dashboard/charity" className="btn btn-secondary btn-sm">
-                          Select <ArrowRight size={12} />
-                        </Link>
+
+                    <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem" }}>{c.name}</h3>
+                    <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: "1.5rem", flex: 1 }}>{c.description}</p>
+                    
+                    <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <div style={{ display: "flex", marginLeft: "0.25rem" }}>
+                           {[1,2,3].map(i => (
+                             <div key={i} style={{ width: "24px", height: "24px", borderRadius: "50%", background: "var(--bg-subtle)", border: "2px solid #fff", marginLeft: "-8px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                               <Users size={10} color="var(--text-muted)" />
+                             </div>
+                           ))}
+                        </div>
+                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>{c.supporters?.toLocaleString()} joined</span>
                       </div>
-                    )}
+                      <Link href={session ? "/dashboard/charity" : "/signup"} className="btn btn-secondary btn-sm" style={{ fontWeight: 700 }}>
+                        Choose
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </div>

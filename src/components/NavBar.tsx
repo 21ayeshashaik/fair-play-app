@@ -4,16 +4,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Target, Menu, X, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 const links = [
   { href: "/", label: "Home" },
   { href: "/charities", label: "Charities" },
-  { href: "/dashboard", label: "Dashboard" },
 ];
 
 export default function NavBar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Close when path changes
   useEffect(() => {
@@ -51,12 +66,42 @@ export default function NavBar() {
                 </Link>
               );
             })}
-            <Link href="/admin/login" className="nav-link" style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
+
+            {session ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className={`nav-link${pathname?.startsWith("/dashboard") ? " active" : ""}`}
+                  style={pathname?.startsWith("/dashboard") ? { color: "var(--brand)", background: "var(--brand-light)", fontWeight: 600 } : {}}
+                >
+                  Dashboard
+                </Link>
+                <div style={{ width: "1px", height: "18px", background: "var(--border)", margin: "0 0.5rem" }} />
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = "/login";
+                  }}
+                  className="nav-link"
+                  style={{ color: "var(--text-muted)", fontSize: "0.85rem", border: "none", background: "none", cursor: "pointer" }}
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <div style={{ width: "1px", height: "18px", background: "var(--border)", margin: "0 0.5rem" }} />
+                <Link href="/login" className="nav-link" style={{ fontWeight: 600 }}>
+                  Log In
+                </Link>
+                <Link href="/signup" className="btn btn-primary btn-sm">
+                  Join FairPlay
+                </Link>
+              </>
+            )}
+
+            <Link href="/admin/login" className="nav-link" style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginLeft: "0.5rem" }}>
               Admin
-            </Link>
-            <div style={{ width: "1px", height: "18px", background: "var(--border)", margin: "0 0.5rem" }} />
-            <Link href="/dashboard" className="btn btn-primary btn-sm">
-              Subscribe
             </Link>
           </nav>
 
@@ -64,12 +109,12 @@ export default function NavBar() {
           <button
             onClick={() => setOpen(o => !o)}
             className="mobile-menu-btn"
-            style={{ 
-              display: "none", 
-              border: "none", 
-              padding: "0.5rem", 
-              borderRadius: "50%", 
-              background: open ? "var(--brand-light)" : "var(--bg-subtle)", 
+            style={{
+              display: "none",
+              border: "none",
+              padding: "0.5rem",
+              borderRadius: "50%",
+              background: open ? "var(--brand-light)" : "var(--bg-subtle)",
               color: open ? "var(--brand)" : "var(--text-primary)",
               cursor: "pointer",
               transition: "all 0.2s"
@@ -82,21 +127,21 @@ export default function NavBar() {
 
         {/* Mobile menu (Drawer style) */}
         {open && (
-          <div 
-            style={{ 
-              position: "fixed", top: "64px", left: 0, right: 0, bottom: 0, 
+          <div
+            style={{
+              position: "fixed", top: "64px", left: 0, right: 0, bottom: 0,
               background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)",
               zIndex: 99
             }}
             onClick={() => setOpen(false)}
           >
-            <div 
-              style={{ 
-                background: "var(--bg-surface)", 
-                padding: "1.5rem 1rem 2rem", 
+            <div
+              style={{
+                background: "var(--bg-surface)",
+                padding: "1.5rem 1rem 2rem",
                 borderTop: "1px solid var(--border)",
-                borderBottomLeftRadius: "1.5rem", 
-                borderBottomRightRadius: "1.5rem", 
+                borderBottomLeftRadius: "1.5rem",
+                borderBottomRightRadius: "1.5rem",
                 boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
                 display: "flex", flexDirection: "column", gap: "0.5rem"
               }}
@@ -106,9 +151,9 @@ export default function NavBar() {
                 Menu
               </p>
               {links.map(l => (
-                <Link 
-                  key={l.href} 
-                  href={l.href} 
+                <Link
+                  key={l.href}
+                  href={l.href}
                   className={`nav-link${pathname === l.href ? " active" : ""}`}
                   style={{ fontSize: "1rem", padding: "0.85rem 1rem", borderRadius: "12px" }}
                 >
@@ -118,16 +163,44 @@ export default function NavBar() {
                   </div>
                 </Link>
               ))}
+
+              {session && (
+                <Link
+                  href="/dashboard"
+                  className={`nav-link${pathname?.startsWith("/dashboard") ? " active" : ""}`}
+                  style={{ fontSize: "1rem", padding: "0.85rem 1rem", borderRadius: "12px" }}
+                >
+                  Dashboard
+                </Link>
+              )}
+
               <div style={{ height: "1px", background: "var(--border)", margin: "0.5rem 0" }} />
-              <Link href="/admin/login" className="nav-link" style={{ padding: "0.85rem 1rem" }}>
+
+              {!session ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "0.5rem" }}>
+                  <Link href="/login" className="btn btn-secondary" style={{ width: "100%", justifyContent: "center" }}>
+                    Log In
+                  </Link>
+                  <Link href="/signup" className="btn btn-primary" style={{ width: "100%", justifyContent: "center" }}>
+                    Get Started Free
+                  </Link>
+                </div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    window.location.href = "/login";
+                  }}
+                  className="btn btn-secondary"
+                  style={{ width: "100%", justifyContent: "center" }}
+                >
+                  Sign Out
+                </button>
+              )}
+
+              <Link href="/admin/login" className="nav-link" style={{ padding: "0.85rem 1rem", marginTop: "0.5rem" }}>
                 Admin Portal
               </Link>
-
-              <div style={{ marginTop: "1rem", padding: "0 0.5rem" }}>
-                <Link href="/dashboard" className="btn btn-primary" style={{ width: "100%", justifyContent: "center", padding: "1rem" }}>
-                  Join FastPlay Now
-                </Link>
-              </div>
             </div>
           </div>
         )}

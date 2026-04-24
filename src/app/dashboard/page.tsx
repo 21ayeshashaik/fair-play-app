@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import {
   Heart, Trophy, CreditCard, Activity, ArrowRight,
-  CheckCircle, Clock, TrendingUp
+  CheckCircle, Clock, TrendingUp, AlertCircle, Sparkles
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 interface Score {
@@ -33,12 +34,21 @@ function avg(scores: Score[]) {
   return (scores.reduce((s, e) => s + e.score, 0) / scores.length).toFixed(1);
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
+  const searchParams = useSearchParams();
   const [scores, setScores] = useState<Score[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  const isSuccess = searchParams.get("success") === "true";
 
   useEffect(() => {
     (async () => {
+      // Get current user session
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+
       const { data, error } = await supabase
         .from("golf_scores")
         .select("*")
@@ -50,6 +60,27 @@ export default function DashboardPage() {
     })();
   }, []);
 
+  async function handleCheckout() {
+    setCheckoutLoading(true);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user?.email }),
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || "Failed to create checkout session");
+      }
+    } catch (err: any) {
+      alert("Stripe Demo: You need to add your STRIPE_SECRET_KEY to .env.local to launch the real checkout window.\n\nError: " + err.message);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  }
+
   return (
     <div>
       {/* Page header */}
@@ -58,10 +89,30 @@ export default function DashboardPage() {
           <h1 className="page-title">My Dashboard</h1>
           <p className="page-subtitle">Welcome back — here's your current activity snapshot.</p>
         </div>
-        <Link href="/dashboard/scores" className="btn btn-primary">
-          Log Score <ArrowRight size={16} />
-        </Link>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <button 
+            onClick={handleCheckout} 
+            disabled={checkoutLoading}
+            className="btn btn-primary" 
+            style={{ background: "linear-gradient(135deg, var(--brand), #4338ca)", boxShadow: "0 4px 10px rgba(79, 70, 229, 0.3)" }}
+          >
+            {checkoutLoading ? "Preparing..." : <><Sparkles size={16} /> Go Pro</>}
+          </button>
+          <Link href="/dashboard/scores" className="btn btn-secondary">
+            Log Score <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
+
+      {isSuccess && (
+        <div className="alert alert-success" style={{ marginBottom: "2rem", animation: "slideDown 0.5s ease-out" }}>
+          <CheckCircle size={20} />
+          <div>
+            <p style={{ fontWeight: 700 }}>Payment Successful!</p>
+            <p style={{ fontSize: "0.85rem" }}>Welcome to FairPlay Pro. Your subscription is now active.</p>
+          </div>
+        </div>
+      )}
 
       {/* KPI row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
@@ -173,5 +224,18 @@ export default function DashboardPage() {
         <Link href="/dashboard/winnings" className="btn btn-secondary btn-sm">View Details</Link>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ padding: "2.5rem", textAlign: "center" }}>
+        <div className="animate-spin" style={{ width: 28, height: 28, border: "3px solid var(--border)", borderTopColor: "var(--brand)", borderRadius: "50%", margin: "0 auto 0.75rem" }} />
+        <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>Initializing dashboard...</p>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }

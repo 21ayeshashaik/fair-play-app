@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Target, Heart, Activity, Trophy, ArrowRight, CheckCircle, ShieldCheck, Users } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 const steps = [
   {
@@ -35,6 +39,14 @@ const charities = [
 ];
 
 export default function HomePage() {
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+  }, []);
+
   return (
     <>
       {/* ── HERO ── */}
@@ -54,8 +66,8 @@ export default function HomePage() {
           </p>
 
           <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }} className="animate-fade-in-up delay-300">
-            <Link href="/dashboard" className="btn btn-primary btn-xl">
-              Get Started <ArrowRight size={18} />
+            <Link href={session ? "/dashboard" : "/signup"} className="btn btn-primary btn-xl">
+              {session ? "Enter Dashboard" : "Get Started"} <ArrowRight size={18} />
             </Link>
             <Link href="/charities" className="btn btn-secondary btn-xl">
               Browse Charities
@@ -173,8 +185,8 @@ export default function HomePage() {
             Join thousands of golfers who are winning prizes and funding causes they believe in.
           </p>
           <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/dashboard" style={{ background: "#fff", color: "var(--brand)", padding: "0.85rem 2rem", fontWeight: 700, borderRadius: "var(--radius-md)", display: "inline-flex", alignItems: "center", gap: "0.5rem", boxShadow: "var(--shadow-md)" }}>
-              Start Free Trial <ArrowRight size={18} />
+            <Link href={session ? "/dashboard" : "/signup"} style={{ background: "#fff", color: "var(--brand)", padding: "0.85rem 2rem", fontWeight: 700, borderRadius: "var(--radius-md)", display: "inline-flex", alignItems: "center", gap: "0.5rem", boxShadow: "var(--shadow-md)" }}>
+              {session ? "Return to Dashboard" : "Start Free Trial"} <ArrowRight size={18} />
             </Link>
             <Link href="/charities" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", padding: "0.85rem 2rem", fontWeight: 600, borderRadius: "var(--radius-md)", border: "1px solid rgba(255,255,255,0.3)", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
               Explore Charities

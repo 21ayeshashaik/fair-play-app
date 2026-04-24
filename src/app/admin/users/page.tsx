@@ -35,14 +35,23 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState("");
   const [filter, setFilter]   = useState("all");
+  const [error, setError]     = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
+      setError(null);
       const { data, error } = await supabase
         .from("users")
         .select("id, first_name, last_name, email, plan, status, scores_count, joined_at")
         .order("joined_at", { ascending: false });
-      setUsers(!error && data && data.length ? (data as User[]) : MOCK_USERS);
+      
+      if (error) {
+        console.error("Supabase error:", error);
+        setError(error.message);
+        setUsers([]); 
+      } else {
+        setUsers(data as User[] || []);
+      }
       setLoading(false);
     })();
   }, []);
@@ -73,6 +82,16 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </div>
+
+      {error && (
+        <div className="alert alert-danger" style={{ marginBottom: "1.5rem" }}>
+          <AlertCircle size={18} />
+          <div>
+            <p style={{ fontWeight: 700 }}>Database Connection Error</p>
+            <p style={{ fontSize: "0.85rem" }}>{error}. Using cached/mock data for now.</p>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>

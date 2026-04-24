@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { User, Bell, Lock, CreditCard, CheckCircle, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { User, Bell, Lock, CreditCard, CheckCircle, AlertCircle, Sparkles } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface Tab { id: string; label: string; icon: React.ReactNode }
 const TABS: Tab[] = [
@@ -14,10 +15,58 @@ const TABS: Tab[] = [
 export default function SettingsPage() {
   const [tab, setTab] = useState("profile");
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  const [profile, setProfile] = useState({ first: "Alex", last: "Morgan", email: "alex.morgan@example.com", phone: "+44 7700 900123" });
+  const [profile, setProfile] = useState({ first: "", last: "", email: "", phone: "" });
   const [notifs, setNotifs]   = useState({ drawResults: true, winnerAlerts: true, charityUpdates: false, marketing: false });
   const [pwForm, setPwForm]   = useState({ current: "", newPw: "", confirm: "" });
+
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        // Try to fetch more profile details from 'users' table
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (userData) {
+          setProfile({
+            first: userData.first_name || "",
+            last: userData.last_name || "",
+            email: userData.email || session.user.email || "",
+            phone: userData.phone || ""
+          });
+        } else {
+          setProfile(p => ({ ...p, email: session.user.email || "" }));
+        }
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  async function handleCheckout() {
+    setCheckoutLoading(true);
+    try {
+      const resp = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user?.email }),
+      });
+      const data = await resp.json();
+      if (data.url) window.location.href = data.url;
+      else throw new Error(data.error);
+    } catch (err: any) {
+       showToast("Stripe Demo: " + (err.message || "Please check your keys in .env.local"), "error");
+    } finally {
+       setCheckoutLoading(false);
+    }
+  }
 
   function showToast(msg: string, type: "success" | "error") {
     setToast({ msg, type });
@@ -156,19 +205,27 @@ export default function SettingsPage() {
               <h2 style={{ fontSize: "1.05rem", fontWeight: 700, marginBottom: "1.5rem" }}>Billing & Subscription</h2>
               <div className="card card-flat" style={{ background: "var(--bg-subtle)", marginBottom: "1.5rem" }}>
                 <p style={{ fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", marginBottom: "0.5rem" }}>Current Plan</p>
-                <p style={{ fontWeight: 800, fontSize: "1.15rem", marginBottom: "0.25rem" }}>Monthly — £9.99/mo</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                  <p style={{ fontWeight: 800, fontSize: "1.15rem" }}>Monthly Pro — $15.00/mo</p>
+                  <span className="badge badge-blue">Trial</span>
+                </div>
                 <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Next billing date: 15 May 2026</p>
                 <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem" }}>
-                  <button className="btn btn-secondary btn-sm">Switch to Yearly (Save 20%)</button>
-                  <button className="btn btn-danger btn-sm">Cancel Subscription</button>
+                  <button 
+                    onClick={handleCheckout} 
+                    disabled={checkoutLoading}
+                    className="btn btn-primary btn-sm"
+                  >
+                    {checkoutLoading ? "Connecting..." : <><Sparkles size={14} /> Upgrade Now</>}
+                  </button>
+                  <button className="btn btn-secondary btn-sm" disabled>Manage on Stripe</button>
                 </div>
               </div>
-              <div>
+              <div style={{ opacity: 0.6 }}>
                 <p style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.75rem" }}>Payment Method</p>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.85rem 1rem", border: "1px solid var(--border)", borderRadius: "var(--radius-md)", background: "var(--bg-surface)" }}>
                   <CreditCard size={20} color="var(--text-secondary)" />
-                  <span style={{ fontSize: "0.9rem" }}>Visa ending •••• 4242</span>
-                  <button className="btn btn-ghost btn-sm" style={{ marginLeft: "auto" }}>Update</button>
+                  <span style={{ fontSize: "0.9rem" }}>No card on file</span>
                 </div>
               </div>
             </div>
