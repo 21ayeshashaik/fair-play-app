@@ -119,7 +119,7 @@ export default function HomePage() {
       {/* ── PRIZE BREAKDOWN ── */}
       <section className="section section-alt">
         <div className="container">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center" }}>
+          <div className="grid-2" style={{ alignItems: "center" }}>
             <div>
               <span className="section-label">Prize structure</span>
               <h2 className="section-title">Transparent prize pools</h2>

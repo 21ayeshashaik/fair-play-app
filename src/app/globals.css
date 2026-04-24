@@ -686,6 +686,43 @@ tbody td {
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }
 
+/* Responsive Grids */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 3rem;
+}
+
+@media (max-width: 1024px) {
+  .grid-2 { gap: 2rem; }
+  .footer-grid { gap: 2rem; }
+}
+
+@media (max-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
 /* ============================
    DIVIDER
    ============================ */
@@ -711,6 +748,49 @@ hr.divider {
 .alert-success { background: var(--accent-light); border-color: #a7f3d0; color: #065f46; }
 .alert-warning { background: var(--warn-light);   border-color: #fde68a; color: #92400e; }
 .alert-danger  { background: var(--danger-light); border-color: #fecaca; color: #991b1b; }
+
+/* Charity Hero Responsive */
+.charity-hero {
+  position: relative;
+  height: 550px;
+  overflow: hidden;
+  background: #111;
+}
+
+.charity-hero-content {
+  max-width: 700px;
+}
+
+.charity-hero-btns {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .charity-hero {
+    min-height: 520px;
+    height: auto;
+    display: flex;
+    align-items: center;
+    padding: 4rem 0;
+  }
+  .charity-hero-btns {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .charity-hero-btns .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .charity-hero {
+    min-height: 460px;
+  }
+}
 
 /* ============================
    MOBILE BOTTOM NAV

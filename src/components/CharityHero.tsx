@@ -23,7 +23,7 @@ export default function CharityHero() {
   }, []);
 
   return (
-    <section style={{ position: "relative", height: "550px", overflow: "hidden", background: "#111" }}>
+    <section className="charity-hero">
       {/* Background Slider */}
       <AnimatePresence initial={false}>
         <motion.div
@@ -43,8 +43,8 @@ export default function CharityHero() {
       </AnimatePresence>
 
       {/* Content Overlay */}
-      <div className="container" style={{ position: "relative", zIndex: 1, height: "100%", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-        <div style={{ maxWidth: "700px" }}>
+      <div className="container" style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+        <div className="charity-hero-content">
           <motion.div
             key={`content-${index}`}
             initial={{ opacity: 0, y: 20 }}
@@ -54,13 +54,13 @@ export default function CharityHero() {
             <span style={{ color: "var(--brand-light)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.85rem", marginBottom: "1rem", display: "block" }}>
               Make a difference
             </span>
-            <h1 style={{ color: "#fff", fontSize: "clamp(2.5rem, 5vw, 4rem)", fontWeight: 900, letterSpacing: "-0.03em", marginBottom: "1.5rem", lineHeight: 1.1 }}>
+            <h1 style={{ color: "#fff", fontSize: "clamp(2rem, 8vw, 3.5rem)", fontWeight: 900, letterSpacing: "-0.03em", marginBottom: "1rem", lineHeight: 1.1 }}>
               {images[index].title}
             </h1>
-            <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "1.25rem", marginBottom: "2.5rem", lineHeight: 1.6 }}>
+            <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "clamp(1rem, 4vw, 1.25rem)", marginBottom: "2rem", lineHeight: 1.6 }}>
               {images[index].desc}
             </p>
-            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+            <div className="charity-hero-btns">
               <Link href="/signup" className="btn btn-primary btn-xl" style={{ boxShadow: "0 10px 15px -3px rgba(0,0,0,0.3)" }}>
                 Get Started <ArrowRight size={20} />
               </Link>

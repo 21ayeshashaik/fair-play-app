@@ -32,7 +32,7 @@ export default function Footer() {
   return (
     <footer style={{ background: "var(--bg-surface)", borderTop: "1px solid var(--border)", padding: "4rem 0 2rem" }}>
       <div className="container">
-        <div style={{ display: "grid", gridTemplateColumns: "2fr repeat(3, 1fr)", gap: "3rem", marginBottom: "3rem" }}>
+        <div className="footer-grid" style={{ marginBottom: "3rem" }}>
           {/* Brand col */}
           <div>
             <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", fontFamily: "var(--font-heading)", fontSize: "1.25rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "1rem" }}>
