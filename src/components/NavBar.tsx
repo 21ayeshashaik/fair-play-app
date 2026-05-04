@@ -100,9 +100,8 @@ export default function NavBar() {
               </>
             )}
 
-            <Link href="/admin/login" className="nav-link" style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginLeft: "0.5rem" }}>
-              Admin
-            </Link>
+            {/* Removed Admin link */}
+
           </nav>
 
           {/* Mobile burger */}
@@ -198,9 +197,8 @@ export default function NavBar() {
                 </button>
               )}
 
-              <Link href="/admin/login" className="nav-link" style={{ padding: "0.85rem 1rem", marginTop: "0.5rem" }}>
-                Admin Portal
-              </Link>
+              {/* Removed Admin Portal link */}
+
             </div>
           </div>
         )}

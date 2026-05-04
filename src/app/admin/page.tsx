@@ -41,7 +41,6 @@ const pendingWinners = [
 const quickActions = [
   { href: "/admin/draws",     label: "Configure Next Draw",    primary: true  },
   { href: "/admin/charities", label: "Add New Charity",        primary: false },
-  { href: "/admin/users",     label: "Search Users",           primary: false },
   { href: "/admin/winners",   label: "Review Verifications",   primary: false },
 ];
 

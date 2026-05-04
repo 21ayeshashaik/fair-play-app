@@ -43,23 +43,25 @@ export default function CharityHero() {
       </AnimatePresence>
 
       {/* Content Overlay */}
-      <div className="container" style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
-        <div className="charity-hero-content">
+      <div className="container" style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", height: "100%" }}>
+        <div className="charity-hero-content" style={{ width: "100%" }}>
+
           <motion.div
             key={`content-${index}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            <span style={{ color: "var(--brand-light)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", fontSize: "0.85rem", marginBottom: "1rem", display: "block" }}>
+            <span style={{ color: "var(--brand-light)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.15em", fontSize: "0.9rem", marginBottom: "1.5rem", display: "block" }}>
               Make a difference
             </span>
-            <h1 style={{ color: "#fff", fontSize: "clamp(2rem, 8vw, 3.5rem)", fontWeight: 900, letterSpacing: "-0.03em", marginBottom: "1rem", lineHeight: 1.1 }}>
+            <h1 style={{ color: "#fff", fontSize: "clamp(2.5rem, 8vw, 4.5rem)", fontWeight: 900, letterSpacing: "-0.03em", marginBottom: "1.5rem", lineHeight: 1.05 }}>
               {images[index].title}
             </h1>
-            <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "clamp(1rem, 4vw, 1.25rem)", marginBottom: "2rem", lineHeight: 1.6 }}>
+            <p style={{ color: "rgba(255,255,255,0.9)", fontSize: "clamp(1.1rem, 4vw, 1.35rem)", marginBottom: "3rem", lineHeight: 1.8, maxWidth: "700px", margin: "0 auto 3rem" }}>
               {images[index].desc}
             </p>
+
             <div className="charity-hero-btns">
               <Link href="/signup" className="btn btn-primary btn-xl" style={{ boxShadow: "0 10px 15px -3px rgba(0,0,0,0.3)" }}>
                 Get Started <ArrowRight size={20} />

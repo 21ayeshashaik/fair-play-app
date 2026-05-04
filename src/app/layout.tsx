@@ -21,7 +21,7 @@ export default function RootLayout({
         <meta name="description" content="A subscription platform combining golf performance tracking, charity fundraising, and a monthly prize draw engine." />
       </head>
       <body className={isDashboardOrAdmin ? "has-mobile-bottom-nav" : ""}>
-        <NavBar />
+        {!isDashboardOrAdmin && <NavBar />}
         <main>{children}</main>
         {!isDashboardOrAdmin && <Footer />}
       </body>
