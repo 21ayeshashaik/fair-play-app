@@ -1,8 +1,3 @@
--- ============================================================
--- FairPlay — Complete Supabase Database Schema
--- Run this in your Supabase SQL Editor (new project)
--- ============================================================
-
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 

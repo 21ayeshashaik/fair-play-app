@@ -140,13 +140,46 @@ export default async function CharitiesPage() {
       </section>
 
       {/* CTA */}
-      <section style={{ background: "var(--bg-subtle)", borderTop: "1px solid var(--border)", padding: "4rem 0" }}>
-        <div className="container" style={{ textAlign: "center" }}>
-          <h2 style={{ fontSize: "1.75rem", fontWeight: 800, marginBottom: "0.75rem" }}>Not seeing your charity?</h2>
-          <p style={{ color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
-            We're always expanding our directory. Contact us to nominate a cause.
+      <section style={{ 
+        background: "linear-gradient(135deg, var(--brand) 0%, #0c399b 100%)", 
+        padding: "5rem 0",
+        color: "#fff",
+        position: "relative",
+        overflow: "hidden"
+      }}>
+        {/* Subtle decorative elements */}
+        <div style={{ position: "absolute", top: "-100px", right: "-100px", width: "300px", height: "300px", borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
+        <div style={{ position: "absolute", bottom: "-50px", left: "-50px", width: "200px", height: "200px", borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
+
+        <div className="container" style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+          <div style={{ 
+            display: "inline-flex", 
+            alignItems: "center", 
+            gap: "0.5rem", 
+            background: "rgba(255,255,255,0.1)", 
+            padding: "0.4rem 1rem", 
+            borderRadius: "9999px",
+            fontSize: "0.85rem",
+            fontWeight: 600,
+            marginBottom: "1.5rem",
+            border: "1px solid rgba(255,255,255,0.2)"
+          }}>
+            <Heart size={14} /> Suggest a Cause
+          </div>
+          <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 800, marginBottom: "1rem", color: "#fff", letterSpacing: "-0.02em" }}>
+            Not seeing your charity?
+          </h2>
+          <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "1.1rem", marginBottom: "2.5rem", maxWidth: "600px", margin: "0 auto 2.5rem" }}>
+            We're committed to supporting as many verified charities as possible. Tell us which cause you'd like to see on FairPlay.
           </p>
-          <Link href="/contact" className="btn btn-primary">Nominate a Charity <ArrowRight size={16} /></Link>
+          <Link href="/contact" className="btn btn-xl" style={{ 
+            background: "#fff", 
+            color: "var(--brand)", 
+            fontWeight: 700,
+            boxShadow: "0 10px 15px -3px rgba(0,0,0,0.2)"
+          }}>
+            Nominate a Charity <ArrowRight size={18} />
+          </Link>
         </div>
       </section>
     </>

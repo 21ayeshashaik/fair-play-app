@@ -154,7 +154,10 @@ export default function HomePage() {
               <span className="section-label">Charity directory</span>
               <h2 className="section-title" style={{ marginBottom: 0 }}>Featured causes</h2>
             </div>
-            <Link href="/charities" className="btn btn-secondary btn-sm">View all charities →</Link>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <Link href="/charities" className="btn btn-secondary btn-sm">View all charities →</Link>
+              <Link href="/contact" className="btn btn-ghost btn-sm" style={{ fontWeight: 600 }}>Nominate a Charity</Link>
+            </div>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
@@ -171,6 +174,29 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="card mt-12" style={{ 
+            background: "var(--brand-light)", 
+            border: "1px solid rgba(26, 86, 219, 0.1)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "2.5rem",
+            flexWrap: "wrap",
+            gap: "2.5rem"
+          }}>
+            <div style={{ flex: "1 1 400px" }}>
+              <h3 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--brand)", marginBottom: "0.5rem" }}>
+                Don't see your favorite charity?
+              </h3>
+              <p style={{ color: "var(--text-secondary)", fontSize: "1rem", lineHeight: 1.6 }}>
+                We're constantly adding new causes. Nominate a verified charity today and help us expand our global impact.
+              </p>
+            </div>
+            <Link href="/contact" className="btn btn-primary btn-lg">
+              Nominate a Charity <ArrowRight size={18} />
+            </Link>
           </div>
         </div>
       </section>

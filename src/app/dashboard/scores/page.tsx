@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Activity, Plus, Trash2, Info, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Activity, Plus, Info, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 interface Score {
@@ -20,7 +20,7 @@ const MOCK_SCORES: Score[] = [
 ];
 
 // In production, replace with the real authenticated user id from Supabase Auth
-const DEMO_USER_ID = "demo-user-001";
+
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", {
@@ -33,19 +33,30 @@ export default function ScoresPage() {
   const [loading, setLoading] = useState(true);
   const [saving,  setSaving]  = useState(false);
   const [toast,   setToast]   = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [user, setUser]       = useState<any>(null);
   const [form, setForm]       = useState({ date: "", score: "" });
 
   /* ── load scores from DB ── */
   useEffect(() => {
     (async () => {
+      // Get real session
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id;
+      setUser(session?.user ?? null);
+
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("golf_scores")
         .select("*")
-        .eq("user_id", DEMO_USER_ID)
+        .eq("user_id", userId)
         .order("date", { ascending: false })
         .limit(5);
 
-      setScores(!error && data && data.length ? (data as Score[]) : MOCK_SCORES);
+      setScores(!error && data ? (data as Score[]) : []);
       setLoading(false);
     })();
   }, []);
@@ -59,77 +70,70 @@ export default function ScoresPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const scoreNum = parseInt(form.score);
+    
     if (!form.date || isNaN(scoreNum) || scoreNum < 1 || scoreNum > 45) {
       showToast("Score must be between 1 and 45.", "error");
       return;
     }
 
+    if (!user?.id) {
+      showToast("You must be logged in to save scores.", "error");
+      return;
+    }
+
     setSaving(true);
 
-    // Check for duplicate date
-    const duplicate = scores.find(s => s.date === form.date);
-
-    if (duplicate) {
-      // Update existing record (same date policy)
-      const { error } = await supabase
+    try {
+      // Use upsert to handle both new scores and updates for existing dates
+      const { data, error } = await supabase
         .from("golf_scores")
-        .update({ score: scoreNum })
-        .eq("id", duplicate.id);
+        .upsert({
+          user_id: user.id,
+          date: form.date,
+          score: scoreNum,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,date'
+        })
+        .select()
+        .single();
 
       if (error) {
-        showToast("Failed to update score. Please try again.", "error");
+        console.error("Supabase upsert error:", error);
+        showToast(`Failed to save score: ${error.message}`, "error");
       } else {
-        setScores(prev => prev.map(s => s.date === form.date ? { ...s, score: scoreNum } : s));
-        showToast("Score updated for existing date.", "success");
-      }
-    } else {
-      // Insert new score; enforce 5-score rolling window
-      const newEntry: Score = {
-        id: crypto.randomUUID(),
-        date: form.date,
-        score: scoreNum,
-        user_id: DEMO_USER_ID,
-      };
-
-      const { error } = await supabase.from("golf_scores").insert([{
-        id: newEntry.id,
-        user_id: DEMO_USER_ID,
-        date: form.date,
-        score: scoreNum,
-      }]);
-
-      if (error) {
-        showToast("Failed to save score. Please try again.", "error");
-      } else {
-        let updated = [newEntry, ...scores.filter(s => s.date !== form.date)]
+        // Refresh local list
+        const newEntry = data as Score;
+        let updated = [newEntry, ...scores.filter(s => s.id !== newEntry.id && s.date !== newEntry.date)]
           .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-        // Delete oldest if over 5
-        if (updated.length > 5) {
-          const dropped = updated.slice(5);
-          updated = updated.slice(0, 5);
-          await supabase.from("golf_scores").delete().in("id", dropped.map(d => d.id));
+        // Enforce 5-score limit in UI (and optionally in DB if that's the policy)
+        // If we want to keep ONLY 5 scores in the DB for this user:
+        const { data: allUserScores } = await supabase
+          .from("golf_scores")
+          .select("id")
+          .eq("user_id", user.id)
+          .order("date", { ascending: false });
+
+        if (allUserScores && allUserScores.length > 5) {
+          const idsToDelete = allUserScores.slice(5).map(s => s.id);
+          await supabase.from("golf_scores").delete().in("id", idsToDelete);
+          updated = updated.filter(s => !idsToDelete.includes(s.id));
         }
 
-        setScores(updated);
-        showToast("Score saved successfully.", "success");
+        setScores(updated.slice(0, 5));
+        showToast(updated.some(s => s.id === newEntry.id && s.date === form.date) ? "Score saved successfully." : "Score updated.", "success");
+        setForm({ date: "", score: "" });
       }
-    }
-
-    setForm({ date: "", score: "" });
-    setSaving(false);
-  }
-
-  /* ── delete ── */
-  async function handleDelete(id: string) {
-    const { error } = await supabase.from("golf_scores").delete().eq("id", id);
-    if (error) {
-      showToast("Failed to delete score.", "error");
-    } else {
-      setScores(prev => prev.filter(s => s.id !== id));
-      showToast("Score removed.", "success");
+    } catch (err: any) {
+      console.error("Unexpected error:", err);
+      showToast("An unexpected error occurred.", "error");
+    } finally {
+      setSaving(false);
     }
   }
+
+
 
   const avg = scores.length
     ? (scores.reduce((s, e) => s + e.score, 0) / scores.length).toFixed(1)
@@ -251,13 +255,7 @@ export default function ScoresPage() {
                       <span style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--brand)" }}>{s.score}</span>
                       <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}> pts</span>
                     </div>
-                    <button
-                      onClick={() => handleDelete(s.id)}
-                      style={{ padding: "0.4rem", borderRadius: "6px", color: "var(--danger)", background: "var(--danger-light)", border: "none", cursor: "pointer", display: "flex", alignItems: "center" }}
-                      title="Delete score"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+
                   </div>
                 </div>
               ))}

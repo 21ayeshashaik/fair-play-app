@@ -11,6 +11,7 @@ import {
 
 const navItems = [
   { href: "/admin",           label: "Analytics",    icon: BarChart2,       exact: true },
+  { href: "/admin/users",     label: "Users",        icon: Users },
   { href: "/admin/draws",     label: "Draw Engine",  icon: Cpu },
   { href: "/admin/charities", label: "Charities",    icon: HeartHandshake },
   { href: "/admin/winners",   label: "Verifications",icon: CheckSquare },

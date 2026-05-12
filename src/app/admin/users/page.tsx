@@ -11,16 +11,16 @@ interface User {
   email: string;
   plan: "monthly" | "yearly";
   status: "active" | "lapsed" | "cancelled";
-  scores_count: number;
+  golf_scores: { count: number }[];
   joined_at: string;
 }
 
 const MOCK_USERS: User[] = [
-  { id: "u1", first_name: "Alex",    last_name: "Morgan",  email: "alex@example.com",  plan: "monthly", status: "active",    scores_count: 5, joined_at: "2026-01-10" },
-  { id: "u2", first_name: "Jamie",   last_name: "Chen",    email: "jamie@example.com", plan: "yearly",  status: "active",    scores_count: 4, joined_at: "2025-11-22" },
-  { id: "u3", first_name: "Sam",     last_name: "Patel",   email: "sam@example.com",   plan: "monthly", status: "lapsed",    scores_count: 2, joined_at: "2025-09-05" },
-  { id: "u4", first_name: "Jordan",  last_name: "Kim",     email: "jordan@example.com",plan: "monthly", status: "active",    scores_count: 5, joined_at: "2026-02-14" },
-  { id: "u5", first_name: "Riley",   last_name: "Davis",   email: "riley@example.com", plan: "yearly",  status: "cancelled", scores_count: 0, joined_at: "2025-08-30" },
+  { id: "u1", first_name: "Alex",    last_name: "Morgan",  email: "alex@example.com",  plan: "monthly", status: "active",    golf_scores: [{ count: 5 }], joined_at: "2026-01-10" },
+  { id: "u2", first_name: "Jamie",   last_name: "Chen",    email: "jamie@example.com", plan: "yearly",  status: "active",    golf_scores: [{ count: 4 }], joined_at: "2025-11-22" },
+  { id: "u3", first_name: "Sam",     last_name: "Patel",   email: "sam@example.com",   plan: "monthly", status: "lapsed",    golf_scores: [{ count: 2 }], joined_at: "2025-09-05" },
+  { id: "u4", first_name: "Jordan",  last_name: "Kim",     email: "jordan@example.com",plan: "monthly", status: "active",    golf_scores: [{ count: 5 }], joined_at: "2026-02-14" },
+  { id: "u5", first_name: "Riley",   last_name: "Davis",   email: "riley@example.com", plan: "yearly",  status: "cancelled", golf_scores: [{ count: 0 }], joined_at: "2025-08-30" },
 ];
 
 function StatusBadge({ status }: { status: string }) {
@@ -33,24 +33,37 @@ function StatusBadge({ status }: { status: string }) {
 export default function AdminUsersPage() {
   const [users, setUsers]     = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [search, setSearch]   = useState("");
   const [filter, setFilter]   = useState("all");
   const [error, setError]     = useState<string | null>(null);
 
   useEffect(() => {
+    setMounted(true);
     (async () => {
       setError(null);
       const { data, error } = await supabase
         .from("users")
-        .select("id, first_name, last_name, email, plan, status, scores_count, joined_at")
+        .select(`
+          id, 
+          first_name, 
+          last_name, 
+          email, 
+          plan, 
+          status, 
+          joined_at, 
+          golf_scores:golf_scores(count)
+        `)
         .order("joined_at", { ascending: false });
       
+      console.log("Admin Users Data Fetch:", data);
+
       if (error) {
         console.error("Supabase error:", error);
         setError(error.message);
-        setUsers([]); 
+        setUsers(MOCK_USERS); 
       } else {
-        setUsers(data as User[] || []);
+        setUsers(data as any || MOCK_USERS);
       }
       setLoading(false);
     })();
@@ -122,10 +135,9 @@ export default function AdminUsersPage() {
                   <th>Name</th>
                   <th className="hide-mobile-md">Email</th>
                   <th className="hide-mobile-sm">Plan</th>
-                  <th>Scores</th>
+                  <th>Draw Entry</th>
                   <th>Status</th>
                   <th className="hide-mobile-md">Joined</th>
-                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -137,16 +149,14 @@ export default function AdminUsersPage() {
                     <td className="hide-mobile-md" style={{ color: "var(--text-secondary)" }}>{u.email}</td>
                     <td className="hide-mobile-sm"><span className={`badge ${u.plan === "yearly" ? "badge-blue" : "badge-gray"}`}>{u.plan}</span></td>
                     <td>
-                      <span style={{ fontWeight: 700, color: u.scores_count === 5 ? "var(--accent)" : "var(--text-primary)" }}>{u.scores_count}</span>
-                      <span style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}> / 5</span>
+                      <span style={{ fontWeight: 700, color: (u.golf_scores?.[0]?.count || 0) === 5 ? "var(--accent)" : "var(--text-primary)" }}>
+                        {u.golf_scores?.[0]?.count || 0}
+                      </span>
+                      <span style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}> / 5 rounds</span>
                     </td>
                     <td><StatusBadge status={u.status} /></td>
-                    <td className="hide-mobile-md" style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>{new Date(u.joined_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</td>
-                    <td>
-                      <div style={{ display: "flex", gap: "0.35rem" }}>
-                        <button className="btn btn-secondary btn-sm" title="View"><Eye size={14} /></button>
-                        <button className="btn btn-secondary btn-sm" title="Edit"><Edit2 size={14} /></button>
-                      </div>
+                    <td className="hide-mobile-md" style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
+                      {mounted ? new Date(u.joined_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "..."}
                     </td>
                   </tr>
                 ))}

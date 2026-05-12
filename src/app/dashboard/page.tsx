@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import {
   Heart, Trophy, CreditCard, Activity, ArrowRight,
-  CheckCircle, Clock, TrendingUp, AlertCircle, Sparkles
+  CheckCircle, Clock, TrendingUp, AlertCircle, Sparkles, LogOut
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -52,10 +52,11 @@ function DashboardContent() {
       const { data, error } = await supabase
         .from("golf_scores")
         .select("*")
+        .eq("user_id", session?.user?.id)
         .order("date", { ascending: false })
         .limit(5);
 
-      setScores(!error && data && data.length ? (data as Score[]) : MOCK_SCORES);
+      setScores(!error && data ? (data as Score[]) : []);
       setLoading(false);
     })();
   }, []);
@@ -97,6 +98,16 @@ function DashboardContent() {
             style={{ background: "linear-gradient(135deg, var(--brand), #4338ca)", boxShadow: "0 4px 10px rgba(79, 70, 229, 0.3)" }}
           >
             {checkoutLoading ? "Preparing..." : <><Sparkles size={16} /> Go Pro</>}
+          </button>
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.href = "/login";
+            }}
+            className="btn btn-secondary"
+            style={{ color: "var(--danger)" }}
+          >
+            <LogOut size={16} /> Sign Out
           </button>
           <Link href="/dashboard/scores" className="btn btn-secondary">
             Log Score <ArrowRight size={16} />
@@ -158,6 +169,20 @@ function DashboardContent() {
           <p className="stat-label">Total Winnings</p>
           <p className="stat-value">$0.00</p>
           <Link href="/dashboard/winnings" className="btn btn-secondary btn-sm mt-4" style={{ display: "inline-flex" }}>Draws History</Link>
+        </div>
+
+        {/* Prize Pool */}
+        <div className="stat-card" style={{ background: "linear-gradient(135deg, #fff 0%, var(--brand-light) 100%)", border: "1px solid var(--brand)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
+            <div className="icon-box" style={{ background: "var(--brand)", color: "#fff" }}><Activity size={18} /></div>
+            <span className="badge badge-blue" style={{ background: "var(--brand)", color: "#fff" }}>Live</span>
+          </div>
+          <p className="stat-label" style={{ color: "var(--brand)", fontWeight: 700 }}>Current Prize Pool</p>
+          <p className="stat-value" style={{ color: "var(--brand)" }}>$12,450.00</p>
+          <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "0.35rem" }}>Based on 4,200 active players</p>
+          <div style={{ marginTop: "1rem", height: "4px", background: "var(--border)", borderRadius: "2px", overflow: "hidden" }}>
+            <div style={{ width: "70%", height: "100%", background: "var(--brand)" }} />
+          </div>
         </div>
       </div>
 
